@@ -1,0 +1,72 @@
+<!--Author: Jeremy Pham-->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Simple Dialogs?</title>
+  <script src="DOMPurify-master/dist/purify.min.js"></script>
+
+</head>
+
+<body>
+  <h1>
+    Simple Dialogs?
+  </h1>
+  <form>
+    <input type="button" id="alertBtn" value="Alert" />
+    <input type="button" id="confirmBtn" value="Confirm" />
+    <input type="button" id="promptBtn" value="Prompt" />
+    <input type="button" id="spromptBtn" value="Safer Prompt" />
+  </form>
+
+  <hr>
+  <div align="left">
+    <dialog id="outBox">
+      <output id="out"></output>
+    </dialog>
+  </div>
+
+
+
+
+  <script type="text/javascript">
+    var outElem = document.getElementById("out");
+    var diagElem = document.getElementById("outBox");
+
+    // called when user clicks confirm button and returns what they click
+    function confHandler() {
+      var result = window.confirm("Do you confirm this?");
+      outElem.innerHTML = `Confirm result : ${result}`;
+      diagElem.show();
+    }
+
+    // captures user input and echoes it
+    function promHandler() {
+      var result = window.prompt("What is your name?");
+      if (result == null) {
+        result = "User didn't enter anything"
+      }
+      outElem.innerHTML = `Prompt result : ${result}`;
+      diagElem.show();
+    }
+
+    // "sanitizes" user input before printing to protect from XSS
+    function spromHandler() {
+      var result = window.prompt("What is your name?");
+      result = DOMPurify.sanitize(result);
+      if (result == null) {
+        result = "User didn't enter anything"
+      }
+      outElem.innerHTML = `Prompt result : ${result}`;
+      diagElem.show();
+    }
+
+    alertBtn.addEventListener("click", () => window.alert("Alert pressed!"));
+    confirmBtn.addEventListener("click", confHandler);
+    promptBtn.addEventListener("click", promHandler);
+    spromptBtn.addEventListener("click", spromHandler);
+
+  </script>
+</body>

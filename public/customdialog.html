@@ -1,0 +1,119 @@
+<!--Author: Jeremy Pham-->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Simple Dialogs?</title>
+  <script src="DOMPurify-master/dist/purify.min.js"></script>
+
+</head>
+
+<body>
+  <form>
+    <input type="button" id="alertBtn" value="Alert" />
+    <input type="button" id="confirmBtn" value="Confirm" />
+    <input type="button" id="promptBtn" value="Prompt" />
+  </form>
+
+
+  <div style="text-align: left">
+    <dialog id="outBox">
+      <output id="out"></output>
+    </dialog>
+  </div>
+
+  <dialog id="diagBox">
+    <form method="dialog">
+      <p id="dialogMsg"></p>
+      <menu>
+        <button id="negBtn">Cancel</button>
+        <button id="posBtn">Ok</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <dialog id="diagPrompt">
+    <form method="dialog" id="dialogForm">
+
+      <p>What is your name? <input type="text" id="nameIn">
+      </p>
+
+      <button id="promptCancel" type="reset">Cancel</button>
+      <button type="submit">Ok</button>
+
+    </form>
+  </dialog>
+
+
+
+  <script type="text/javascript">
+    //<b onmouseover="alert('pwned')">Roll me</b>
+    var outElem = document.getElementById("out");
+    var resultElem = document.getElementById("outBox");
+
+    var customDlgBox = document.getElementById("diagBox");
+    var outStr = document.getElementById("dialogMsg");
+
+    var cancel = document.getElementById("negBtn");
+    var ok = document.getElementById("posBtn");
+
+    var promptDlg = document.getElementById("diagPrompt");
+    var promptCancel = document.getElementById("promptCancel");
+    var dialogForm = document.getElementById("dialogForm");
+
+    function alertHandler() {
+      outStr.innerHTML = "Alert pressed!";
+      customDlgBox.showModal();
+      resultElem.close();
+    }
+
+    // called when user clicks confirm button and returns what they click
+    function confHandler() {
+      outStr.innerHTML = "Do you confirm this?";
+      cancel.addEventListener("click", printRes(false));
+      ok.addEventListener("click", printRes(true));
+
+      customDlgBox.showModal(); // shows the dialog box with menu buttons
+
+      function printRes(result) {
+        return function() {
+          console.log(result);
+          outElem.innerHTML = `Confirm result : ${result}`;
+          resultElem.show(); // show the result of the confirm
+        };
+      }
+    }
+
+    // captures user input and echoes it after sanitizing it
+    function promHandler() {
+      promptDlg.showModal();
+    }
+
+
+    // the three buttons on the initial screen
+    alertBtn.addEventListener("click", alertHandler);
+    confirmBtn.addEventListener("click", confHandler);
+    promptBtn.addEventListener("click", promHandler);
+
+
+    // if cancel is clicked, user didn't enter anything
+    promptCancel.addEventListener("click", () => {
+      promptDlg.close();
+      outElem.innerHTML = "User didn't enter anything"
+    });
+
+    // happens when user enters name and confirms it, sanitizes input
+    promptDlg.addEventListener("submit", function() {
+      promptDlg.close();
+      var nameIn = document.getElementById("nameIn");
+      var result = nameIn.value;
+      result = DOMPurify.sanitize(result);
+      outElem.innerHTML = `Prompt result : ${result}`;
+      resultElem.show();
+      dialogForm.reset();
+    });
+
+  </script>
+</body>

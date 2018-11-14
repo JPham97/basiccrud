@@ -1,0 +1,170 @@
+<!-- Author: Jeremy Pham -->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Movie CRUD</title>
+
+</head>
+
+<body style="background-color: lightblue">
+
+  <h1>Big List of Movies</h1>
+
+  <ul id="movieList"></ul>
+
+  <p>No movies currently listed <button id="addBtn">Add Movie</button></p>
+
+
+  <dialog id="movDlg">
+    <form method="dialog" id="dialogForm">
+
+      <p>Title: <input type="text" placeholder="Title" id="titleIn"><br>
+        Year of Release: <input type="number" id="yearIn"><br>
+
+        <label>Rating:
+          <select id="ratingIn">
+            <option>G</option>
+            <option>PG</option>
+            <option>PG-13</option>
+            <option>R</option>
+            <option>NR</option>
+          </select>
+        </label>
+      </p>
+
+      <button id="cancelBtn" type="reset">Cancel</button>
+      <button type="submit">Save</button>
+
+    </form>
+  </dialog>
+
+
+  <dialog id="delDlg">
+    <p>Delete movie?</p>
+    <button id="delCancel">Cancel</button>
+    <button id="delConf">Ok</button>
+  </dialog>
+
+
+  <script type="text/javascript">
+    var movieArr = [];
+
+    var updateButton = document.getElementById("addBtn");
+    var cancelBtn = document.getElementById("cancelBtn");
+
+    // the dialog box that asks for a movie entry
+    var movDlg = document.getElementById("movDlg");
+
+    // the <ul> for movies
+    var movieList = document.getElementById("movieList");
+    var dialogForm = document.getElementById("dialogForm");
+
+    var delDlg = document.getElementById("delDlg");
+    var delCancel = document.getElementById("delCancel");
+    var delConf = document.getElementById("delConf");
+
+    // prepopulates the form when entry needs to be edited
+    function editEntry(movieEntry, index) {
+      var form = document.getElementById("dialogForm").elements;
+      console.log(form);
+      form.titleIn.value = movieEntry.entryTitle;
+      form.yearIn.value = movieEntry.entryYear;
+      form.ratingIn.value = movieEntry.entryRating;
+      movDlg.showModal();
+    }
+
+    // logic for deleting an entry, handles the removal of the node
+    // in DOM tree
+    function deleteEntry(index) {
+      delDlg.showModal();
+      delCancel.addEventListener("click", () => delDlg.close());
+      delConf.addEventListener("click", () => {
+        delDlg.close()
+        console.log(movieList);
+        delete movieArr[index];
+        var entryNode = document.getElementById(`movie${index}`);
+        entryNode.parentNode.removeChild(entryNode);
+      });
+    }
+
+
+    window.onload = function() {
+
+      // “Update details” button opens the <dialog> modally
+      updateButton.addEventListener("click", function() {
+        movDlg.showModal();
+      });
+
+      cancelBtn.addEventListener("click", () => movDlg.close());
+
+
+      // capture the user input when the form is submitted
+      movDlg.addEventListener("submit", function() {
+        movDlg.close();
+
+        var titleIn = document.getElementById("titleIn");
+        var yearIn = document.getElementById("yearIn");
+        var ratingIn = document.getElementById("ratingIn");
+
+        // create a JSON object so values are easily accessible
+        var movieEntry = {
+          entryTitle: titleIn.value,
+          entryYear: yearIn.value,
+          entryRating: ratingIn.value,
+        };
+
+        // after the movieEntry JSON object is formed, it needs to be added to the list
+        var newEntry = document.createElement("li");
+        var entryStr = `${movieEntry.entryTitle} (${movieEntry.entryYear}) - Rated: ${movieEntry.entryRating} `;
+
+        var index = -1;
+        // find an empty entry in array
+        for (var i = 0; i < movieArr.length; i++) {
+          if (movieArr[i] == null) {
+            index = i;
+            break;
+          }
+        }
+
+        // if array is full or empty
+        if (index == -1) {
+          index = movieArr.length;
+        }
+
+        // id will just be the index where it will be stored
+        newEntry.setAttribute("id", `movie${index}`);
+        newEntry.appendChild(document.createTextNode(entryStr));
+
+        // create the buttons for editing and deleting movie entries
+        var editBtn = document.createElement("button");
+        editBtn.setAttribute("id", `edit${index}`);
+        var deleteBtn = document.createElement("button");
+        deleteBtn.setAttribute("id", `delete${index}`);
+
+        // change the text of the buttons
+        editBtn.innerHTML = "Edit";
+        deleteBtn.innerHTML = "Delete";
+
+        // call the proper functions to either edit or delete an entry
+        editBtn.addEventListener("click", () => editEntry(movieEntry, index));
+        deleteBtn.addEventListener("click", () => deleteEntry(index));
+
+        // adding buttons to the new movie entry
+        newEntry.appendChild(editBtn);
+        newEntry.appendChild(deleteBtn);
+
+        // adding the li to the ul and the array
+        movieList.appendChild(newEntry);
+        movieArr[index] = newEntry;
+
+        dialogForm.reset();
+      });
+    }
+
+  </script>
+
+</body>
+
+</html>
